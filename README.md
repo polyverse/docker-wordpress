@@ -67,14 +67,16 @@ This container is designed to be deployed to multiple orchestration systems such
 
 ### Kubernetes on Amazon EKS
 
+#### AWS Prerequisites
+
+* NOTE: All these pre-requisite AWS stack can be launched through the [./aws](./aws) subdirectory. It can do all the heavy lifting rapidly.
+
 This file shows you how to deploy this container to Amazon EKS. You will need the following controllers installed on your cluster:
 
 - [ALB Ingress Controller](https://docs.aws.amazon.com/eks/latest/userguide/alb-ingress.html) - This will enable the `Ingress` resource to provision a Application Load Balancer
 - [EFS Container Storage Interface Driver](https://docs.aws.amazon.com/eks/latest/userguide/efs-csi.html) - This will enable EKS to mount EFS File Systems to the container
 
 Before getting started, deploy a cluster to AWS, provision a RDS database, and create an EFS File System with mount points in each AZ.
-
-Next, go to the `examples/kubernetes.yml` file and update the `PersistentVolume` configuration with the ID of the EFS File System you created.
 
 Next create a secret for all of the Wordpress Salts (These can be [genereated here](https://api.wordpress.org/secret-key/1.1/salt/)). These will enable all instances of our pods to encrypt and decrypt the session.
 
@@ -100,14 +102,17 @@ kubectl create secret generic wordpress-db \
   --from-literal=password=""
 ```
 
+If you wish to configure a TLS Certificate you can add an annotation to this example. The additional annotations are documented on the [ALB Ingress docs](https://kubernetes-sigs.github.io/aws-alb-ingress-controller/guide/ingress/annotation/).
+
+#### Actual Wordpress deployment
+
+Either through automation, or some other way, you'll get an EFS volume by this step. Next, go to the `examples/kubernetes.yml` file and update the `PersistentVolume` configuration with the ID of the EFS File System you created.
+
 Then finally,
 
 ```bash
 kubectl apply -f examples/kubernetes.yml
 ```
-
-If you wish to configure a TLS Certificate you can add an annotation to this example. The additional annotations are documented on the [ALB Ingress docs](https://kubernetes-sigs.github.io/aws-alb-ingress-controller/guide/ingress/annotation/).
-
 ### Docker Compose
 
 This file is an exmaple that you can run locally and shows how to deploy Wordpress using Docker Compose. This requires that you have Docker Desktop installed. The container build is defined in the Docker Compose for usability purposes.
